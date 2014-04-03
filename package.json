@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/abeisgreat/SocialShares.js.git"
+    "url": "git://github.com/abeisgreat/Shares.js.git"
   },
   "keywords": [
     "facebook",
@@ -27,7 +27,7 @@
   "author": "Abraham Haskins",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/abeisgreat/SocialShares.js/issues"
+    "url": "https://github.com/abeisgreat/Shares.js/issues"
   },
   "dependencies": {
     "promise": "~4.0.0",
