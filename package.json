@@ -1,6 +1,6 @@
 {
   "name": "shares",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Get Share/Like/Upvote counts for any URL",
   "main": "index.js",
   "scripts": {
