@@ -17,7 +17,7 @@ module.exports = new (function () {
             url: 'https://graph.facebook.com/?id=',
             format: function (body) {
                 var data = JSON.parse(body);
-                return data.shares;   
+                return data.shares || 0;   
             }
         },
         pinterest: {
@@ -55,13 +55,16 @@ module.exports = new (function () {
         reddit: {
             url: 'http://www.reddit.com/submit.json?url=',
             format: function (body) {
-                var data = JSON.parse(body);
+                var data, base;
+                data = JSON.parse(body);
                 
-                if (!data.kind) {
+                if (!data.kind && !data[0].kind) {
                     return 0;
                 }
                 
-                return data.data.children[0].data.score;
+                base = data.length? data[0] : data;
+                
+                return base.data.children[0].data.score || base.data.children[0].data.ups - base.data.children[0].data.downs;
             }
         }
     }
