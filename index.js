@@ -14,10 +14,10 @@ module.exports = new (function () {
             }
         },
         facebook: {
-            url: 'https://graph.facebook.com/?id=',
+            url: 'https://api.facebook.com/method/links.getStats?format=json&urls=',
             format: function (body) {
-                var data = JSON.parse(body);
-                return data.shares || 0;   
+                var data = JSON.parse(body)[0];
+                return data.share_count || 0;   
             }
         },
         pinterest: {
