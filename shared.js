@@ -84,10 +84,10 @@ module.exports = new (function () {
     
     var after = function (trigger, func) {
         var current = 0;
-        root.step = function () {
+        this.step = function (data) {
             current += 1;
             if (current == trigger) {
-                func();
+                func(data);
             }
         }
     };
@@ -100,13 +100,12 @@ module.exports = new (function () {
                 resolve(results); 
             }).step;
             
-            for (var service in services) {
+            Object.keys(services).forEach(function (service) {
                 root.get[service](url).then(function (count) {
                     results[service] = count; 
-                    console.log(service, count)
-                    done();
+                    done(results);
                 });
-            }
+            });
         });
                                                 
         return promise;
@@ -119,8 +118,6 @@ module.exports = new (function () {
 
 /*
 {
-    twitter: 'https://cdn.api.twitter.com/1/urls/count.json?url=' + https://www.codedevelopr.com // Twitter Sharecount
-    facebook: 'https://graph.facebook.com/?id=' + https://www.codedevelopr.com // Facebook Likes
     google_plus: 'https://clients6.google.com/rpc?key=YOUR_API_KEY' // Google
     [{
         "method":"pos.plusones.get",
@@ -136,10 +133,5 @@ module.exports = new (function () {
         "key":"p",
         "apiVersion":"v1"
     }]
-    pinterest: 'https://api.pinterest.com/v1/urls/count.json?callback=&url=' + https://www.codedevelopr.com // Pintrest
-    linkedin: 'https://www.linkedin.com/countserv/count/share?url=' + https://www.codedevelopr.com&format=json // LinkedIn      
-    stumbleupon: 'https://www.stumbleupon.com/services/1.01/badge.getinfo?url' + =https://www.codedevelopr.com // StumbleUpon
-    buffer: 'https://api.bufferapp.com/1/links/shares.json?url=' + https://www.codedevelopr.com // Buffer
-    reddit: 'http://www.reddit.com/submit.json?url='+ http%3A%2F%2Fi.imgur.com%2FI6zANej.jpg // Reddit
 }
 */
