@@ -7,7 +7,7 @@ Example
 -------
 First install it...
 
-`npm install shared-js`
+    npm install shared-js
 
 Then get some counts...
 
