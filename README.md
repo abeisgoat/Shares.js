@@ -1,5 +1,5 @@
 Shares.js
----------
+=========
 
 Get Share/Like/Upvote counts for a URL.
 
@@ -15,7 +15,7 @@ Then get require it...
     
 Then get some counts!
 
-    shares.reddit.get('https://github.com/abeisgreat/Shares.js').then(function (count) {
+    shares.get.reddit('https://github.com/abeisgreat/Shares.js').then(function (count) {
         // Count is a number
     });
     
@@ -38,3 +38,14 @@ To get all the counts at once, just use...
             }
         *
     });
+    
+Services
+--------
+
+* Twitter
+* StumbleUpon
+* Facebook
+* Reddit
+* LinkedIn
+* Pinterest
+* Buffer
