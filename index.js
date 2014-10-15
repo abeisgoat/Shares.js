@@ -38,7 +38,7 @@ module.exports = new (function () {
             url: 'http://badge.stumbleupon.com/badge/embed/5/?url=',
             format: function (body) {
                 // Yes friends, we can all agree parsing HTML with regex is a bad idea
-                // I'm glad we're on the same page about root.
+                // I'm glad we're on the same page about that.
                 var matches = body.match(/>([0-9]+)<\/a><\/li><\/ul>/);
                 var data = matches? parseInt(matches[1]) : 0;
                 return data;
