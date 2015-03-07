@@ -2,7 +2,7 @@ var request = require('request');
 var Promise = require('promise');
 
 module.exports = (function () {
-    "use strict";
+    'use strict';
 
     var root = {};
 
@@ -139,8 +139,8 @@ module.exports = (function () {
 
     var getter = function (service) {
         return function (url) {
-            if (typeof url !== "string") {
-                throw "URL must be a string";
+            if (typeof url !== 'string') {
+                throw 'URL must be a string';
             }
 
             var promise = new Promise(function (resolve, reject) {
