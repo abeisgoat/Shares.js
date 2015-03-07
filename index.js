@@ -1,36 +1,37 @@
 var request = require('request');
 var Promise = require('promise');
 
-module.exports = new (function () {
+module.exports = (function () {
     "use strict";
-    
-    var root = this;
+
+    var root = {};
+
     var services = {
         twitter: {
             url: 'https://cdn.api.twitter.com/1/urls/count.json?url=',
             format: function (body) {
                 var data = JSON.parse(body);
-                return data.count;   
+                return data.count;
             }
         },
         facebook: {
             url: 'https://api.facebook.com/method/links.getStats?format=json&urls=',
             format: function (body) {
                 var data = JSON.parse(body)[0];
-                return data.share_count || 0;   
+                return data.share_count || 0;
             }
         },
         pinterest: {
             url: 'https://api.pinterest.com/v1/urls/count.json?callback=_&url=',
             format: function (body) {
-                var data = JSON.parse(body.match(/_\((.+)\)/)[1]); 
+                var data = JSON.parse(body.match(/_\((.+)\)/)[1]);
                 return data.count;
             }
         },
         linkedin: {
             url: 'https://www.linkedin.com/countserv/count/share?url=',
             format: function (body) {
-                var data = JSON.parse(body.match(/IN\.Tags\.Share\.handleCount\((.+)\)/)[1]); 
+                var data = JSON.parse(body.match(/IN\.Tags\.Share\.handleCount\((.+)\)/)[1]);
                 return data.count;
             }
         },
@@ -57,23 +58,22 @@ module.exports = new (function () {
             format: function (body) {
                 var data, base;
                 data = JSON.parse(body);
-                
+
                 if (!data.kind && !data[0].kind) {
                     return 0;
                 }
-                
+
                 base = data.length? data[0] : data;
-                
+
                 return base.data.children[0].data.score || base.data.children[0].data.ups - base.data.children[0].data.downs;
             }
         }
-    }
-    
+    };
+
     var getter = function (service) {
         return function (url) {
             if (typeof url !== "string") {
                 throw "URL must be a string";
-                return;
             }
 
             var promise = new Promise(function (resolve, reject) {
@@ -81,43 +81,45 @@ module.exports = new (function () {
                     resolve(service.format(body));
                 });
             });
-            return promise;      
-        }
+            return promise;
+        };
     };
-    
-    var after = function (trigger, func) {
+
+    var After = function (trigger, func) {
         var current = 0;
         this.step = function (data) {
             current += 1;
             if (current == trigger) {
                 func(data);
             }
-        }
+        };
     };
-            
-    root.get = function (url) {        
+
+    root.get = function (url) {
         var promise = new Promise(function (resolve, reject) {
             var results = {};
-            
-            var done = new after(Object.keys(services).length, function () {
-                resolve(results); 
+
+            var done = new After(Object.keys(services).length, function () {
+                resolve(results);
             }).step;
-            
+
             Object.keys(services).forEach(function (service) {
                 root.get[service](url).then(function (count) {
-                    results[service] = count; 
+                    results[service] = count;
                     done(results);
                 });
             });
         });
-                                                
+
         return promise;
     };
-    
+
     for (var service in services) {
         root.get[service] = getter(services[service]);
     }
-});
+
+    return root;
+}());
 
 /*
 {
