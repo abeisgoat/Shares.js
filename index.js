@@ -6,9 +6,32 @@ module.exports = (function () {
 
     var root = {};
 
+    var getRequest = function (service, url, callback) {
+        request.get({url: service.url + url}, function (err, resp, body) {
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, service.format(body));
+        });
+    };
+
+    var postRequest = function (service, url, callback) {
+        request.post({url: service.url, body: service.body(url)}, function (err, resp, body) {
+            if (err) {
+                return callback(err);
+            }
+
+            callback(null, service.format(body));
+        });
+    };
+
     var services = {
         twitter: {
             url: 'https://cdn.api.twitter.com/1/urls/count.json?url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 var data = JSON.parse(body);
                 return data.count;
@@ -16,6 +39,9 @@ module.exports = (function () {
         },
         facebook: {
             url: 'https://api.facebook.com/method/links.getStats?format=json&urls=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 var data = JSON.parse(body)[0];
                 return data.share_count || 0;
@@ -23,6 +49,9 @@ module.exports = (function () {
         },
         pinterest: {
             url: 'https://api.pinterest.com/v1/urls/count.json?callback=_&url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 var data = JSON.parse(body.match(/_\((.+)\)/)[1]);
                 return data.count;
@@ -30,6 +59,9 @@ module.exports = (function () {
         },
         linkedin: {
             url: 'https://www.linkedin.com/countserv/count/share?url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 var data = JSON.parse(body.match(/IN\.Tags\.Share\.handleCount\((.+)\)/)[1]);
                 return data.count;
@@ -37,6 +69,9 @@ module.exports = (function () {
         },
         stumbleupon: {
             url: 'http://badge.stumbleupon.com/badge/embed/5/?url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 // Yes friends, we can all agree parsing HTML with regex is a bad idea
                 // I'm glad we're on the same page about that.
@@ -47,6 +82,9 @@ module.exports = (function () {
         },
         buffer: {
             url: 'https://api.bufferapp.com/1/links/shares.json?url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 // Gonna be honest, I don't know what buffer is.
                 var data = JSON.parse(body);
@@ -55,6 +93,9 @@ module.exports = (function () {
         },
         reddit: {
             url: 'http://www.reddit.com/submit.json?url=',
+            request: function (url, callback) {
+                return getRequest(this, url, callback);
+            },
             format: function (body) {
                 var data, base;
                 data = JSON.parse(body);
@@ -67,6 +108,32 @@ module.exports = (function () {
 
                 return base.data.children[0].data.score || base.data.children[0].data.ups - base.data.children[0].data.downs;
             }
+        },
+        gplus: {
+            url: 'https://clients6.google.com/rpc',
+            request: function (url, callback) {
+                return postRequest(this, url, callback);
+            },
+            body: function (url) {
+                return JSON.stringify({
+                    method: 'pos.plusones.get',
+                    id: 'p',
+                    params: {
+                        nolog:true,
+                        id: url,
+                        source: 'widget',
+                        userId: '@viewer',
+                        groupId: '@self'
+                    },
+                    jsonrpc:'2.0',
+                    key:'p',
+                    apiVersion:'v1'
+                });
+            },
+            format: function (body) {
+                var data = JSON.parse(body);
+                return data.result.metadata.globalCounts.count;
+            }
         }
     };
 
@@ -77,8 +144,8 @@ module.exports = (function () {
             }
 
             var promise = new Promise(function (resolve, reject) {
-                request(service.url + url, function (err, req, body) {
-                    resolve(service.format(body));
+                service.request(url, function (err, response) {
+                    resolve(response);
                 });
             });
             return promise;
@@ -120,23 +187,3 @@ module.exports = (function () {
 
     return root;
 }());
-
-/*
-{
-    google_plus: 'https://clients6.google.com/rpc?key=YOUR_API_KEY' // Google
-    [{
-        "method":"pos.plusones.get",
-        "id":"p",
-        "params":{
-            "nolog":true,
-            "id":"https://www.codedevelopr.com/",
-            "source":"widget",
-            "userId":"@viewer",
-            "groupId":"@self"
-            },
-        "jsonrpc":"2.0",
-        "key":"p",
-        "apiVersion":"v1"
-    }]
-}
-*/
